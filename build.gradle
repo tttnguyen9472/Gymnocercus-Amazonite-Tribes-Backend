@@ -1,0 +1,82 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.5.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+    id "org.flywaydb.flyway" version "7.5.4"
+}
+
+flyway {
+    url = System.getenv('DATASOURCE_URL')
+    user = System.getenv('DATASOURCE_USERNAME')
+    password = System.getenv('DATASOURCE_PASSWORD')
+    locations = ['classpath:db/migration', 'classpath:resources/db/migration']
+    configFiles = ['flyway.conf']
+    createSchemas = false
+}
+
+flywayMigrate.dependsOn classes
+
+apply plugin: 'checkstyle'
+apply plugin: 'jacoco'
+
+group = 'com.greenfoxacademy'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '8'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+checkstyle {
+    toolVersion "8.18"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        html.destination file("${buildDir}/jacoco")
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.projectlombok:lombok:1.18.16'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-test'
+    implementation 'org.modelmapper.extensions:modelmapper-jackson:0.7.3'
+    implementation 'log4j:log4j:1.2.17'
+
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'junit:junit:4.12'
+
+    compileOnly 'org.projectlombok:lombok'
+
+    compile 'io.jsonwebtoken:jjwt:0.9.1'
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
+    compile 'org.modelmapper:modelmapper:2.3.5'
+
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation group: 'com.h2database', name: 'h2', version: '1.4.199'
+
+    annotationProcessor 'org.projectlombok:lombok'
+
+
+}
+
+test {
+    useJUnitPlatform()
+}

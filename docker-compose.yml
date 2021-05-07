@@ -1,0 +1,31 @@
+version: '3.3'
+
+services:
+  #service 1: definition of mysql database
+  tribes-db:
+    image: mysql:latest
+    container_name: tribes-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - "3310:3306"
+    restart: always
+
+  #service 2: definition of your spring-boot app
+  amazonitetribes:                               #it is just a name, which will be used only in this file.
+    image: tribes                                #name of the image after dockerfile executes
+    container_name: tribes-app                   #name of the container created from docker image
+    build:
+      context: .                                #docker file path (. means root directory)
+      dockerfile: Dockerfile                    #docker file name
+    ports:
+      - "8080:8080"                             #docker container port with your os port
+    restart: always
+
+    depends_on:                                 #define dependencies of this app
+      - tribes-db                               #dependency name (which is defined with this name 'db' in this file earlier)
+    environment:
+      DATASOURCE_URL: jdbc:mysql://tribes-db:3306/TribesDatabase?createDatabaseIfNotExist=true
+      DATASOURCE_USERNAME: root
+      DATASOURCE_PASSWORD: password
+      SECRET_KEY: secret
